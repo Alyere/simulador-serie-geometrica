@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cálculo II — Simulador de Séries Geométricas (Grupo 6)</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-panel: #111827;
+      --bg-card: #1e293b;
+      --bg-input: #0f172a;
+      --border: #334155;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-amber: #fbbf24;
+      --accent-green: #10b981;
+      --accent-red: #f43f5e;
+      --btn-primary: #0284c7;
+      --btn-hover: #0369a1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .badge-grupo {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-blue);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+    }
+
+    header h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 1.5rem;
+      padding: 1.5rem 2rem;
+      flex: 1;
+      max-width: 1520px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+
+    .panel-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent-blue);
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      margin-bottom: 0.95rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.35rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.6rem 0.75rem;
+      border-radius: 8px;
+      font-family: 'Consolas', monospace;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--btn-primary);
+      color: white;
+      border: none;
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 0.35rem;
+    }
+
+    .btn-primary:hover {
+      background: var(--btn-hover);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.99);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 1.25rem 0;
+    }
+
+    .preset-btn {
+      width: 100%;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      padding: 0.6rem 0.75rem;
+      border-radius: 8px;
+      text-align: left;
+      font-size: 0.85rem;
+      cursor: pointer;
+      margin-bottom: 0.5rem;
+      transition: border-color 0.2s, background 0.2s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .preset-btn:hover {
+      border-color: var(--accent-blue);
+      background: #263349;
+    }
+
+    .preset-tag {
+      font-family: 'Consolas', monospace;
+      font-size: 0.75rem;
+      color: var(--accent-blue);
+    }
+
+    .content-area {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+
+    @media (max-width: 1180px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .kpi-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.2rem;
+    }
+
+    .kpi-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .kpi-value {
+      font-family: 'Consolas', monospace;
+      font-size: 1.45rem;
+      font-weight: 700;
+      margin-top: 0.35rem;
+    }
+
+    .kpi-formula {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+      font-family: 'Consolas', monospace;
+    }
+
+    .chart-box {
+      position: relative;
+      height: 330px;
+      width: 100%;
+    }
+
+    .table-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.85rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .table-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      padding: 0.45rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent-blue);
+    }
+
+    .table-wrapper {
+      max-height: 270px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      background: var(--bg-card);
+      color: var(--accent-blue);
+      text-align: right;
+      padding: 0.65rem 0.9rem;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+    }
+
+    thead th:first-child,
+    tbody td:first-child {
+      text-align: center;
+    }
+
+    tbody td {
+      padding: 0.55rem 0.9rem;
+      text-align: right;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+      font-family: 'Consolas', monospace;
+    }
+
+    tbody tr:hover {
+      background: rgba(56, 189, 248, 0.06);
+    }
+
+    .progress-bg {
+      width: 100px;
+      height: 8px;
+      background: var(--bg-input);
+      border-radius: 99px;
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent-green);
+      border-radius: 99px;
+    }
+
+    .error-banner {
+      display: none;
+      background: rgba(244, 63, 94, 0.15);
+      border: 1px solid var(--accent-red);
+      color: #fecdd3;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      margin-bottom: 1rem;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--accent-green);
+      color: #042f2e;
+      font-weight: 700;
+      padding: 0.65rem 1.1rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <span class="badge-grupo">GRUPO 6</span>
+      <div>
+        <h1>Séries Geométricas & Crescimento de Armazenamento</h1>
+        <div class="subtitle">Cálculo Diferencial e Integral II • Centro Universitário UNIESP</div>
+      </div>
+    </div>
+    <div class="subtitle" id="expressaoHeader">S = 10 + 5 + 2,5 + 1,25 + ...</div>
+  </header>
+
+  <main class="layout">
+    <aside class="panel">
+      <div class="panel-title">Parâmetros da Série</div>
+
+      <div id="errorBanner" class="error-banner"></div>
+
+      <form id="simForm">
+        <div class="form-group">
+          <label for="inputA">Primeiro Termo (a₁)</label>
+          <input type="text" id="inputA" value="10" required />
+        </div>
+
+        <div class="form-group">
+          <label for="inputR">Razão da Série (r)</label>
+          <input type="text" id="inputR" value="0.5" required />
+        </div>
+
+        <div class="form-group">
+          <label for="inputN">Número de Etapas (n)</label>
+          <input type="number" id="inputN" value="5" min="1" max="300" required />
+        </div>
+
+        <div class="form-group">
+          <label for="inputUnidade">Unidade de Medida</label>
+          <input type="text" id="inputUnidade" value="GB" maxlength="10" />
+        </div>
+
+        <button type="submit" class="btn-primary">▶ Simular e Atualizar Gráfico</button>
+      </form>
+
+      <div class="divider"></div>
+
+      <div class="panel-title">Cenários de Demonstração</div>
+
+      <button type="button" class="preset-btn" onclick="aplicarCenario(10, 0.5, 5, 'GB')">
+        <span>1. Oficial Grupo 6 (Backups)</span>
+        <span class="preset-tag">r = 0.5</span>
+      </button>
+
+      <button type="button" class="preset-btn" onclick="aplicarCenario(10, 0.85, 15, 'GB')">
+        <span>2. Convergência Lenta</span>
+        <span class="preset-tag">r = 0.85</span>
+      </button>
+
+      <button type="button" class="preset-btn" onclick="aplicarCenario(10, 2.0, 6, 'GB')">
+        <span>3. Explosão / Divergente</span>
+        <span class="preset-tag">r = 2.0</span>
+      </button>
+    </aside>
+
+    <section class="content-area">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Soma Parcial (Sₙ)</div>
+          <div class="kpi-value" id="kpiSoma" style="color: var(--accent-amber);">—</div>
+          <div class="kpi-formula">Sₙ = a₁(1 - rⁿ) / (1 - r)</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">Critério de Convergência</div>
+          <div class="kpi-value" id="kpiStatus" style="color: var(--accent-green);">—</div>
+          <div class="kpi-formula" id="kpiCriterioDetalhe">|r| &lt; 1</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">Soma Infinita (S∞)</div>
+          <div class="kpi-value" id="kpiInfinito" style="color: var(--accent-blue);">—</div>
+          <div class="kpi-formula">S∞ = a₁ / (1 - r)</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">Margem até o Teto</div>
+          <div class="kpi-value" id="kpiMargem">—</div>
+          <div class="kpi-formula">Δ = S∞ - Sₙ</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Análise Gráfica: Termo por Etapa (aₖ) vs. Acumulado (Sₖ)</div>
+        <div class="chart-box">
+          <canvas id="graficoSerie"></canvas>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="table-header-bar">
+          <div class="panel-title" style="margin-bottom: 0;">Detalhamento Numérico por Etapa</div>
+          <div class="table-actions">
+            <button type="button" class="btn-secondary" onclick="copiarResumo()">Copiar Resumo</button>
+            <button type="button" class="btn-secondary" onclick="exportarCSV()">Exportar CSV (Excel)</button>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Etapa (k)</th>
+                <th>Termo Atual (aₖ)</th>
+                <th>Soma Fechada (Sₖ)</th>
+                <th>Soma Iterativa (fsum)</th>
+                <th>Atingido do Teto (S∞)</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaCorpo"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast">Ação concluída!</div>
+
+  <script>
+    let chartInstancia = null;
+    let ultimoResultado = null;
+
+    function mostrarToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    function aplicarCenario(a, r, n, unidade) {
+      document.getElementById('inputA').value = a;
+      document.getElementById('inputR').value = r;
+      document.getElementById('inputN').value = n;
+      document.getElementById('inputUnidade').value = unidade;
+      executarSimulacao();
+    }
+
+    async function executarSimulacao() {
+      const errorBanner = document.getElementById('errorBanner');
+      errorBanner.style.display = 'none';
+
+      const a = parseFloat(document.getElementById('inputA').value.replace(',', '.'));
+      const r = parseFloat(document.getElementById('inputR').value.replace(',', '.'));
+      const n = parseInt(document.getElementById('inputN').value, 10);
+      const unidade = document.getElementById('inputUnidade').value.trim() || 'GB';
+
+      try {
+        const resposta = await fetch('/api/simular', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            primeiro_termo: a,
+            razao: r,
+            num_termos: n,
+            unidade: unidade
+          })
+        });
+
+        const dados = await resposta.json();
+        if (!resposta.ok) {
+          throw new Error(dados.erro || 'Erro ao processar a simulação.');
+        }
+
+        ultimoResultado = dados;
+        atualizarDashboard(dados);
+      } catch (err) {
+        errorBanner.textContent = err.message;
+        errorBanner.style.display = 'block';
+      }
+    }
+
+    function atualizarDashboard(res) {
+      const p = res.parametros;
+      const u = p.unidade;
+
+      const termosPreview = res.etapas.slice(0, 4).map(e => Number(e.termo_atual.toFixed(4))).join(' + ');
+      document.getElementById('expressaoHeader').textContent = `S = ${termosPreview} + ... (${u})`;
+
+      document.getElementById('kpiSoma').textContent = `${res.soma_n_analitica.toFixed(4)} ${u}`;
+
+      const kpiStatus = document.getElementById('kpiStatus');
+      const kpiInfinito = document.getElementById('kpiInfinito');
+      const kpiMargem = document.getElementById('kpiMargem');
+
+      if (res.converge && res.soma_infinita !== null) {
+        kpiStatus.textContent = 'CONVERGENTE';
+        kpiStatus.style.color = 'var(--accent-green)';
+        document.getElementById('kpiCriterioDetalhe').textContent = `|${p.razao}| < 1`;
+        kpiInfinito.textContent = `${res.soma_infinita.toFixed(4)} ${u}`;
+        kpiInfinito.style.color = 'var(--accent-blue)';
+        kpiMargem.textContent = `${res.margem_restante.toFixed(4)} ${u}`;
+      } else {
+        kpiStatus.textContent = 'DIVERGENTE';
+        kpiStatus.style.color = 'var(--accent-red)';
+        document.getElementById('kpiCriterioDetalhe').textContent = `|${p.razao}| ≥ 1 (Cresce p/ ∞)`;
+        kpiInfinito.textContent = '∞ (Ilimitado)';
+        kpiInfinito.style.color = 'var(--accent-red)';
+        kpiMargem.textContent = 'N/A';
+      }
+
+      const tbody = document.getElementById('tabelaCorpo');
+      tbody.innerHTML = '';
+
+      res.etapas.forEach(item => {
+        const tr = document.createElement('tr');
+        let colunaTeto = '<span style="color: var(--accent-red);">Divergente</span>';
+
+        if (item.percentual_teto !== null) {
+          const pct = Math.max(0, Math.min(100, item.percentual_teto));
+          colunaTeto = `
+            <div class="progress-bg">
+              <div class="progress-fill" style="width: ${pct}%;"></div>
+            </div>
+            <span>${item.percentual_teto.toFixed(2)}%</span>
+          `;
+        }
+
+        tr.innerHTML = `
+          <td>${item.etapa}</td>
+          <td style="color: var(--accent-blue);">${item.termo_atual.toFixed(6)} ${u}</td>
+          <td style="color: var(--accent-amber); font-weight: 700;">${item.soma_analitica.toFixed(6)} ${u}</td>
+          <td>${item.soma_iterativa.toFixed(6)} ${u}</td>
+          <td>${colunaTeto}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      renderizarGrafico(res);
+    }
+
+    function renderizarGrafico(res) {
+      const ctx = document.getElementById('graficoSerie').getContext('2d');
+      const labels = res.etapas.map(e => `Etapa ${e.etapa}`);
+      const dadosTermos = res.etapas.map(e => e.termo_atual);
+      const dadosSomas = res.etapas.map(e => e.soma_analitica);
+      const u = res.parametros.unidade;
+
+      const datasets = [
+        {
+          type: 'bar',
+          label: `Volume na Etapa aₖ (${u})`,
+          data: dadosTermos,
+          backgroundColor: 'rgba(56, 189, 248, 0.55)',
+          borderColor: '#38bdf8',
+          borderWidth: 1,
+          borderRadius: 4,
+          order: 2
+        },
+        {
+          type: 'line',
+          label: `Soma Acumulada Sₖ (${u})`,
+          data: dadosSomas,
+          borderColor: '#fbbf24',
+          backgroundColor: '#fbbf24',
+          borderWidth: 2.5,
+          pointRadius: res.etapas.length <= 30 ? 4 : 2,
+          tension: 0.2,
+          order: 1
+        }
+      ];
+
+      if (res.converge && res.soma_infinita !== null) {
+        datasets.push({
+          type: 'line',
+          label: `Limite Infinito S∞ (${res.soma_infinita.toFixed(2)} ${u})`,
+          data: res.etapas.map(() => res.soma_infinita),
+          borderColor: '#10b981',
+          borderWidth: 2,
+          borderDash: [6, 6],
+          pointRadius: 0,
+          fill: false,
+          order: 0
+        });
+      }
+
+      if (chartInstancia) {
+        chartInstancia.destroy();
+      }
+
+      chartInstancia = new Chart(ctx, {
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              labels: { color: '#f8fafc', font: { family: 'Segoe UI', size: 12 } }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#94a3b8' },
+              grid: { color: 'rgba(51, 65, 85, 0.4)' }
+            },
+            y: {
+              ticks: { color: '#94a3b8' },
+              grid: { color: 'rgba(51, 65, 85, 0.4)' }
+            }
+          }
+        }
+      });
+    }
+
+    function copiarResumo() {
+      if (!ultimoResultado) return;
+      const p = ultimoResultado.parametros;
+      const status = ultimoResultado.converge
+        ? `CONVERGENTE (S∞ = ${ultimoResultado.soma_infinita.toFixed(6)} ${p.unidade})`
+        : 'DIVERGENTE (|r| >= 1)';
+
+      const texto = [
+        'Série Geométrica — Trabalho Aplicado Cálculo II (Grupo 6)',
+        `Parâmetros: a₁ = ${p.primeiro_termo} ${p.unidade}, r = ${p.razao}, n = ${p.num_termos}`,
+        `Soma dos ${p.num_termos} primeiros termos (S_${p.num_termos}): ${ultimoResultado.soma_n_analitica.toFixed(6)} ${p.unidade}`,
+        `Comportamento Infinito: ${status}`
+      ].join('\n');
+
+      navigator.clipboard.writeText(texto);
+      mostrarToast('Resumo copiado para a área de transferência!');
+    }
+
+    function exportarCSV() {
+      if (!ultimoResultado) return;
+      const u = ultimoResultado.parametros.unidade;
+      const linhas = [`Etapa (k);Termo_ak (${u});Soma_Analitica_Sk (${u});Percentual_Teto (%)`];
+
+      ultimoResultado.etapas.forEach(item => {
+        const pct = item.percentual_teto !== null ? item.percentual_teto.toFixed(4).replace('.', ',') : 'Divergente';
+        linhas.push([
+          item.etapa,
+          item.termo_atual.toFixed(6).replace('.', ','),
+          item.soma_analitica.toFixed(6).replace('.', ','),
+          pct
+        ].join(';'));
+      });
+
+      const blob = new Blob(['\uFEFF' + linhas.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'simulacao_serie_geometrica_grupo6.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+      mostrarToast('Arquivo CSV baixado!');
+    }
+
+    document.getElementById('simForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      executarSimulacao();
+    });
+
+    window.addEventListener('DOMContentLoaded', executarSimulacao);
+  </script>
+</body>
+</html>
